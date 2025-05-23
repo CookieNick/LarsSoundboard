@@ -102,23 +102,18 @@
     <header class="mb-6 md:mb-8 text-center relative w-full max-w-4xl px-4 pt-4"> 
         <button id="theme-toggle-button" class="absolute top-2 right-2 md:top-4 md:right-4 p-2 rounded-lg text-lg md:text-xl shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 z-10">
             </button>
-        <img src="https://placehold.co/100x100/334155/E2E8F0?text=Lars" alt="Lars Emoji" id="lars-avatar" class="w-24 h-24 md:w-32 md:h-32 rounded-full mx-auto mb-4 border-4 shadow-lg">
-        <h1 class="text-3xl md:text-4xl font-bold">Lars' Soundboard</h1>
-        <p class="text-sm md:text-base mt-1">The best soundboard of the company where he works.</p>
-    </header>
+        <h1>Lars' Soundboard</h1> <p class="text-sm md:text-base mt-1">The best soundboard of the company where he works.</p> </header>
 
     <main id="soundboard-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 w-full max-w-4xl mx-auto px-4">
         </main>
 
     <section id="eight-ball-section" class="mt-8 mb-8 w-full max-w-xs mx-auto px-4 text-center">
-        <h2 class="text-xl font-semibold mb-3 section-title">Lars Weet Raad</h2>
-        <button id="eight-ball-button" class="w-full font-semibold py-3 px-4 rounded-lg shadow-md text-base">
-            🔮 Ja of nee?
-        </button>
+        <h2 class="text-xl font-semibold mb-3 section-title">Lars Weet Raad</h2> <button id="eight-ball-button" class="w-full font-semibold py-3 px-4 rounded-lg shadow-md text-base">
+            🔮 Ja of nee? </button>
     </section>
 
-    <footer class="mt-auto mb-4 text-center text-xs w-full px-4"> <p id="footer-credit">Soundboard made by Gemini and CookieNick</p> 
-    </footer>
+    <footer class="mt-auto mb-4 text-center text-xs w-full px-4"> 
+        <p id="footer-credit">Soundboard made by Gemini and CookieNick</p> </footer>
 
     <div id="message-box" class="fixed bottom-4 right-4 p-3 rounded-lg shadow-xl text-sm transition-opacity duration-300 opacity-0 z-50">
         <span id="message-text"></span>
@@ -150,7 +145,7 @@
         const themeToggleButton = document.getElementById('theme-toggle-button');
         const htmlElement = document.documentElement;
         const footerCreditElement = document.getElementById('footer-credit');
-        const originalFooterText = footerCreditElement ? footerCreditElement.textContent : "Soundboard made by Gemini and CookieNick";
+        let originalFooterText = footerCreditElement ? footerCreditElement.textContent : "Soundboard made by Gemini and CookieNick";
         const eightBallButton = document.getElementById('eight-ball-button');
         
         // --- Flashbang Variables ---
@@ -159,22 +154,112 @@
         let flashbangFadeOutTimeoutId = null;
 
         // --- 8-Ball Spam Control Variables ---
-        let consecutiveQuickClicks = 0; // General spam counter
-        let lastEightBallSoundEndTime = 0; // Tracks when the last 8-ball sound finished
-        let isEightBallSoundPlaying = false; // True if an 8-ball sound is currently playing
-        let lastSpamSoundPlayed = ""; // Tracks if "Jeetje" or "Optieven" was the last spam sound
-        let isEightBallDisabled = false; // True if 8-ball is in "Doei" cooldown
-        const QUICK_CLICK_INTERVAL = 750; // ms, general spam interval
-        const SPAM_ESCALATION_INTERVAL = 1000; // ms, interval for specific "Jeetje" -> "Optieven" etc.
-        const EIGHT_BALL_DISABLE_DURATION = 3000; // 5 seconds for "Doei" cooldown
+        let consecutiveQuickClicks = 0; 
+        let lastEightBallSoundEndTime = 0; 
+        let isEightBallSoundPlaying = false; 
+        let lastSpamSoundPlayed = ""; 
+        let isEightBallDisabled = false; 
+        const QUICK_CLICK_INTERVAL = 750; 
+        const SPAM_ESCALATION_INTERVAL = 1000; 
+        const EIGHT_BALL_DISABLE_DURATION = 5000; 
 
         // --- Helper: Find Sound by Description ---
         function findSoundByDescription(description) {
             return soundsData.find(sound => sound.description === description);
         }
 
+        // --- SpongeBob Case Text Transformation ---
+        function toSpongeBobCase(str) {
+            return str.split('').map((char, i) => 
+                (i % 2 === 1) ? char.toUpperCase() : char.toLowerCase() 
+            ).join('');
+        }
+
+        const spongebobElementsConfig = [
+            // Elements where full textContent is transformed
+            { selector: 'header h1', type: 'full' },
+            { selector: 'header p', type: 'full' },
+            { selector: '#eight-ball-section h2', type: 'full', originalKey: 'originalTitle' },
+            // Footer credit is handled specially within applyTheme due to conditional text
+            // Sound buttons and 8-ball button are handled specially due to emojis and dynamic states
+        ];
+
+        function applySpongeBobToPageText(apply) {
+            spongebobElementsConfig.forEach(config => {
+                document.querySelectorAll(config.selector).forEach(el => {
+                    const originalTextKey = config.originalKey || 'originalSpongebobText';
+                    if (apply) {
+                        if (!el.dataset[originalTextKey]) el.dataset[originalTextKey] = el.textContent;
+                        el.textContent = toSpongeBobCase(el.textContent);
+                    } else {
+                        if (el.dataset[originalTextKey]) {
+                            el.textContent = el.dataset[originalTextKey];
+                            delete el.dataset[originalTextKey];
+                        }
+                    }
+                });
+            });
+
+            // Special handling for sound buttons
+            document.querySelectorAll('.sound-button').forEach(button => {
+                const originalDescKey = 'originalDesc';
+                const fullText = button.textContent;
+                const emojiMatch = fullText.match(/^(\S+\s*)/);
+                let emojiPart = emojiMatch ? emojiMatch[0] : "";
+                let currentDesc = emojiMatch ? fullText.substring(emojiPart.length) : fullText;
+
+                if (apply) {
+                    if (!button.dataset[originalDescKey]) button.dataset[originalDescKey] = currentDesc;
+                    button.textContent = emojiPart + toSpongeBobCase(currentDesc);
+                } else {
+                    if (button.dataset[originalDescKey]) {
+                        button.textContent = emojiPart + button.dataset[originalDescKey];
+                        delete button.dataset[originalDescKey];
+                    }
+                    // If no original, it might have been set by createSoundButtons recently
+                }
+            });
+
+            // Special handling for 8-ball button
+            if (eightBallButton) {
+                const originalDescKey = 'original8BallDesc';
+                const fullText = eightBallButton.textContent;
+                const emojiMatch = fullText.match(/^(\S+\s*)/);
+                let emojiPart = emojiMatch ? emojiMatch[0] : "🔮 ";
+                let currentDesc = emojiMatch ? fullText.substring(emojiPart.length) : (eightBallButton.disabled ? "Geduld..." : "Ja of nee?");
+                
+                if (apply) {
+                    if (!eightBallButton.dataset[originalDescKey]) eightBallButton.dataset[originalDescKey] = currentDesc;
+                    eightBallButton.textContent = emojiPart + toSpongeBobCase(currentDesc);
+                } else {
+                    if (eightBallButton.dataset[originalDescKey]) {
+                        eightBallButton.textContent = emojiPart + eightBallButton.dataset[originalDescKey];
+                        delete eightBallButton.dataset[originalDescKey];
+                    } else { // Revert to default based on state
+                        eightBallButton.textContent = emojiPart + (eightBallButton.disabled ? "Geduld..." : "Ja of nee?");
+                    }
+                }
+            }
+            
+            // Footer credit (already handled by applyTheme for conditional text, then Spongebob if needed)
+            if (footerCreditElement && htmlElement.classList.contains('light')) {
+                 // If footerCreditElement.textContent was 'A special flashbang for Tobias'
+                const key = 'originalSpongebobFooter';
+                if (apply) { // Apply is true if we are in light mode context
+                    if(!footerCreditElement.dataset[key]) footerCreditElement.dataset[key] = footerCreditElement.textContent;
+                    footerCreditElement.textContent = toSpongeBobCase(footerCreditElement.textContent);
+                } 
+                // Reversion of footer to non-spongebob happens when dark mode sets its text.
+            } else if (footerCreditElement && footerCreditElement.dataset['originalSpongebobFooter'] && !apply) {
+                 footerCreditElement.textContent = footerCreditElement.dataset['originalSpongebobFooter'];
+                 delete footerCreditElement.dataset['originalSpongebobFooter'];
+            }
+        }
+
+
         // --- Theme Management ---
         function triggerFlashbang() {
+            // ... (flashbang logic remains the same)
             if (flashbangFadeInTimeoutId) clearTimeout(flashbangFadeInTimeoutId);
             if (flashbangFadeOutTimeoutId) clearTimeout(flashbangFadeOutTimeoutId);
             if (flashbangOverlay && flashbangOverlay.parentNode) {
@@ -195,7 +280,8 @@
         }
 
         function applyTheme(theme) {
-            if (theme === 'light') {
+            const isLight = theme === 'light';
+            if (isLight) {
                 htmlElement.classList.remove('dark'); htmlElement.classList.add('light');
                 themeToggleButton.innerHTML = '🌙'; 
                 if (footerCreditElement) footerCreditElement.textContent = 'A special flashbang for Tobias';
@@ -203,7 +289,15 @@
             } else { 
                 htmlElement.classList.remove('light'); htmlElement.classList.add('dark');
                 themeToggleButton.innerHTML = '💡'; 
-                if (footerCreditElement) footerCreditElement.textContent = originalFooterText;
+                if (footerCreditElement) {
+                    const originalKey = 'originalSpongebobFooter'; // Key used by Spongebob func for footer
+                    if (footerCreditElement.dataset[originalKey]) { // If it was Spongebob'd
+                        footerCreditElement.textContent = footerCreditElement.dataset[originalKey]; // Restore pre-Spongebob Tobias text
+                        delete footerCreditElement.dataset[originalKey]; 
+                    }
+                    // Then set to the actual original dark mode text
+                    footerCreditElement.textContent = originalFooterText; 
+                }
                 if (flashbangFadeInTimeoutId) clearTimeout(flashbangFadeInTimeoutId);
                 if (flashbangFadeOutTimeoutId) clearTimeout(flashbangFadeOutTimeoutId);
                 if (flashbangOverlay && flashbangOverlay.parentNode) {
@@ -211,6 +305,7 @@
                 }
             }
             localStorage.setItem('theme', theme);
+            applySpongeBobToPageText(isLight); // Apply/revert Spongebob casing AFTER theme is set
         }
 
         function toggleTheme() {
@@ -218,6 +313,11 @@
         }
 
         function initializeTheme() {
+            // Ensure originalFooterText is captured before any theme application
+            if (footerCreditElement && !originalFooterText) {
+                 originalFooterText = footerCreditElement.textContent;
+            }
+
             const savedTheme = localStorage.getItem('theme');
             const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
             if (savedTheme) applyTheme(savedTheme);
@@ -234,18 +334,30 @@
         // --- Audio Initialization and Playback ---
         async function initializeAudio() {
             if (Tone.context.state !== 'running') {
-                try { await Tone.start(); console.log("Audio context started."); showMessage("Audio ready!", 2000); }
-                catch (error) { console.error("Error starting audio:", error); showMessage("Error initializing audio.", 3000); }
+                try { 
+                    await Tone.start(); 
+                    console.log("Tone.start() successful.");
+                    // As per user request, ensure context is resumed if Tone.start() didn't make it 'running'
+                    if (Tone.context.state !== 'running') {
+                        console.log("Context still not running, attempting resume...");
+                        await Tone.context.resume();
+                        console.log("Tone.context.resume() attempted. New state:", Tone.context.state);
+                    }
+                    if (Tone.context.state === 'running') {
+                         showMessage("Audio ready!", 2000);
+                    } else {
+                         showMessage("Audio context not running after attempts.", 3000);
+                    }
+                }
+                catch (error) { 
+                    console.error("Error starting audio:", error); 
+                    showMessage("Error initializing audio. Please tap a sound again.", 3000); 
+                }
             }
         }
         
-        // Generic play sound function (for main grid buttons)
         function playSound(sound) { 
-            if (!sound || !sound.soundFile) {
-                console.error("Invalid sound object or missing soundFile:", sound);
-                showMessage("Error: Sound data missing.", 2000);
-                return;
-            }
+            if (!sound || !sound.soundFile) { return; }
             if (Tone.context.state !== 'running') {
                 initializeAudio().then(() => { if (Tone.context.state === 'running') actuallyPlay(sound); });
                 return;
@@ -265,19 +377,13 @@
                 });
         }
 
-        // Specific play sound function for 8-Ball that manages state
         function playSoundForEightBall(sound) {
             if (!sound || !sound.soundFile) {
-                console.error("8-Ball: Invalid sound object or missing soundFile:", sound);
-                isEightBallSoundPlaying = false; // Ensure flag is reset
-                return;
+                isEightBallSoundPlaying = false; return;
             }
-
-            isEightBallSoundPlaying = true; // Set flag before playing
-
+            isEightBallSoundPlaying = true; 
             const isPreviewEnv = ['googleusercontent.com', 'gstatic.com', 'usercontent.goog'].some(d => window.location.origin.includes(d)) || window.location.hostname === 'localhost';
             const soundFilePath = isPreviewEnv ? `https://cookienick.github.io/LarsSoundboard/${sound.soundFile}` : sound.soundFile;
-            
             const player = new Tone.Player(soundFilePath).toDestination();
             player.load(soundFilePath)
                 .then(() => {
@@ -292,10 +398,9 @@
                     console.error(`Error playing 8-ball sound ${sound.description}:`, error);
                     showMessage(`Error playing ${sound.description}.`, 3000);
                     isEightBallSoundPlaying = false; 
-                    lastEightBallSoundEndTime = Date.now(); // Still mark an "event" end time
+                    lastEightBallSoundEndTime = Date.now(); 
                 });
         }
-
 
         // --- 8-Ball Logic ---
         if (eightBallButton) {
@@ -304,10 +409,8 @@
 
                 const currentTime = Date.now();
                 const timeSinceLastSoundEnd = lastEightBallSoundEndTime > 0 ? currentTime - lastEightBallSoundEndTime : Infinity;
-
                 let soundToPlayDescription = "";
 
-                // Specific Spam Escalation Path
                 if (lastSpamSoundPlayed === "Jeetje" && timeSinceLastSoundEnd < SPAM_ESCALATION_INTERVAL) {
                     soundToPlayDescription = "Optieven";
                     lastSpamSoundPlayed = "Optieven"; 
@@ -316,64 +419,71 @@
                     soundToPlayDescription = "Doei";
                     isEightBallDisabled = true;
                     eightBallButton.disabled = true;
-                    eightBallButton.textContent = '🔮 Geduld...';
+                    const originalText = "🔮 Geduld...";
+                    eightBallButton.textContent = htmlElement.classList.contains('light') ? "🔮 " + toSpongeBobCase("Geduld...") : originalText;
+                    eightBallButton.dataset.original8BallDesc = "Geduld..."; // Store non-Spongebob version
+
                     setTimeout(() => {
                         isEightBallDisabled = false;
                         eightBallButton.disabled = false;
-                        eightBallButton.textContent = '🔮 Ja of nee?';
+                        const defaultText = "🔮 Ja of nee?";
+                        eightBallButton.textContent = htmlElement.classList.contains('light') ? "🔮 " + toSpongeBobCase("Ja of nee?") : defaultText;
+                        eightBallButton.dataset.original8BallDesc = "Ja of nee?";
                     }, EIGHT_BALL_DISABLE_DURATION);
                     lastSpamSoundPlayed = ""; 
                     consecutiveQuickClicks = 0; 
                 } else {
-                    // General Spam Counter / Normal Logic
                     if (timeSinceLastSoundEnd < QUICK_CLICK_INTERVAL) {
                         consecutiveQuickClicks++;
                     } else {
                         consecutiveQuickClicks = 1; 
                     }
                     
-                    // Determine sound based on general spam or normal 8-ball
-                    if (consecutiveQuickClicks >= 5) { // Threshold for "Optieven" via general spam
+                    if (consecutiveQuickClicks >= 5) { 
                         soundToPlayDescription = "Optieven";
-                        lastSpamSoundPlayed = "Optieven"; // Set for potential escalation
-                    } else if (consecutiveQuickClicks >= 3) { // Threshold for "Jeetje" via general spam
+                        lastSpamSoundPlayed = "Optieven"; 
+                    } else if (consecutiveQuickClicks >= 3) { 
                         soundToPlayDescription = "Jeetje";
-                        lastSpamSoundPlayed = "Jeetje"; // Set for potential escalation
+                        lastSpamSoundPlayed = "Jeetje"; 
                     } else {
-                        // Normal 8-ball logic
                         const rand = Math.random() * 100;
-                        if (rand < 1) { 
-                            soundToPlayDescription = "Geen idee";
-                        } else if (rand < 50.5) { 
-                            soundToPlayDescription = "Ja";
-                        } else { 
-                            soundToPlayDescription = "Nee";
-                        }
-                        lastSpamSoundPlayed = ""; // Not a spam response, clear for specific escalation path
+                        if (rand < 1) soundToPlayDescription = "Geen idee";
+                        else if (rand < 50.5) soundToPlayDescription = "Ja";
+                        else soundToPlayDescription = "Nee";
+                        lastSpamSoundPlayed = ""; 
                     }
                 }
                 
                 const soundObject = findSoundByDescription(soundToPlayDescription);
                 if (soundObject) {
                     playSoundForEightBall(soundObject);
-                } else if (soundToPlayDescription) { // Only if a description was determined but not found
+                } else if (soundToPlayDescription) { 
                     console.error(`Sound not found for 8-ball: ${soundToPlayDescription}`);
                     showMessage(`Sound '${soundToPlayDescription}' not configured.`, 3000);
                 }
             });
         }
 
-
         // --- Create Sound Buttons (Main Grid) ---
         function createSoundButtons() {
             if (!soundboardGrid) return;
+            soundboardGrid.innerHTML = ''; // Clear existing buttons before recreating if necessary
             soundsData.forEach(sound => {
                 const button = document.createElement('button');
                 button.className = 'sound-button font-semibold py-4 px-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-75 h-24 md:h-28 flex items-center justify-center text-center text-sm md:text-base';
-                button.textContent = `${sound.emoji} ${sound.description}`;
+                const defaultText = `${sound.emoji} ${sound.description}`;
+                button.textContent = defaultText; 
+                // Store original description for Spongebob casing
+                button.dataset.originalDesc = sound.description; 
+                button.dataset.emoji = sound.emoji;
+
                 button.addEventListener('click', () => playSound(sound)); 
                 soundboardGrid.appendChild(button);
             });
+             // After creating buttons, if light mode is active, re-apply Spongebob case
+            if (htmlElement.classList.contains('light')) {
+                applySpongeBobToPageText(true);
+            }
         }
 
         // --- Show Message Function ---
@@ -386,8 +496,13 @@
         
         // --- Initialize the App ---
         document.addEventListener('DOMContentLoaded', () => {
-            initializeTheme(); 
-            createSoundButtons();
+            // Capture original footer text early
+            if (footerCreditElement) {
+                originalFooterText = footerCreditElement.textContent;
+            }
+            initializeTheme(); // Sets theme and applies Spongebob if light
+            createSoundButtons(); // Creates buttons with default text
+            // Spongebob transformation for newly created buttons is handled within createSoundButtons or by applyTheme
             console.log("Soundboard UI created. Audio context will initialize on first sound button tap if not already active.");
         });
     </script>
