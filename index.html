@@ -6,6 +6,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* Default Dark Mode Styles (using Tailwind primarily) */
         body {
@@ -42,23 +45,26 @@
         .dark .section-title { color: #9ca3af; }
 
 
-        /* Ugly Hot Pink Light Mode Styles */
+        /* Ugly Light Mode Styles - White BG, Hot Pink Buttons */
         .light body {
-            background-color: hotpink;
-            font-family: 'Comic Sans MS', 'Comic Sans', cursive;
-            color: black;
+            background-color: white; /* New: White background */
+            font-family: 'Comic Sans MS', 'Comic Neue', cursive; /* Added Comic Neue */
+            color: #333; /* Darker text for readability on white */
         }
         .light .sound-button, .light #eight-ball-button, .light #enable-shake-button {
-            background-color: yellow; color: green;
-            font-family: 'Comic Sans MS', 'Comic Sans', cursive;
-            border: 2px dashed blue; box-shadow: 5px 5px 0px orange;
+            background-color: hotpink; /* New: Hot pink buttons */
+            color: white; /* White text on hot pink buttons */
+            font-family: 'Comic Sans MS', 'Comic Neue', cursive;
+            border: 2px dashed navy; /* Keep some "ugly" elements */
+            box-shadow: 5px 5px 0px orange;
         }
         .light .sound-button:hover, .light #eight-ball-button:hover:not(:disabled), .light #enable-shake-button:hover {
-            background-color: lightgreen; color: purple;
+            background-color: #ff1493; /* Darker pink for hover */
+            color: white;
         }
         .light #eight-ball-button:disabled {
-            background-color: #f0f0f0; /* Light grey */
-            color: #a0a0a0; /* Darker grey */
+            background-color: #f8bbd0; /* Lighter pink for disabled */
+            color: #c2185b; /* Darker pink text for disabled */
             border-style: dotted;
             box-shadow: none;
             cursor: not-allowed;
@@ -66,14 +72,39 @@
         .light .sound-button:active, .light #eight-ball-button:active:not(:disabled), .light #enable-shake-button:active {
             transform: scale(0.95) translate(2px, 2px); box-shadow: 2px 2px 0px orange;
         }
-        .light header h1 { color: navy; text-shadow: 2px 2px yellow; }
-        .light header p { color: darkgreen; }
-        .light #lars-avatar { border: 4px dotted limegreen; }
-        .light footer { color: maroon; font-weight: bold; }
-        .light #message-box { background-color: lime; color: purple; border: 2px solid blue; font-family: 'Comic Sans MS', 'Comic Sans', cursive;}
-        .light #theme-toggle-button { background-color: orange; color: darkred; font-family: 'Comic Sans MS', 'Comic Sans', cursive; border: 2px solid purple; }
-        .light #theme-toggle-button:hover { background-color: yellow; }
-        .light .section-title { color: navy; font-weight: bold; }
+        .light header h1 { 
+            color: hotpink; /* Hot pink title */
+            text-shadow: 1px 1px #ffc0cb; /* Light pink shadow */
+        }
+        .light header p { 
+            color: #ff69b4; /* Medium pink for subtitle */
+        }
+        .light #lars-avatar { 
+            border: 4px dotted hotpink; 
+        }
+        .light footer { 
+            color: #c2185b; /* Darker pink for footer text */
+            font-weight: bold; 
+        }
+        .light #message-box { 
+            background-color: #ffc0cb; /* Light pink message box */
+            color: hotpink; 
+            border: 2px solid #ff69b4; 
+            font-family: 'Comic Sans MS', 'Comic Neue', cursive;
+        }
+        .light #theme-toggle-button { 
+            background-color: hotpink; 
+            color: white; 
+            font-family: 'Comic Sans MS', 'Comic Neue', cursive; 
+            border: 2px solid navy; 
+        }
+        .light #theme-toggle-button:hover { 
+            background-color: #ff1493; /* Darker pink */
+        }
+        .light .section-title { 
+            color: hotpink; /* Hot pink section title */
+            font-weight: bold; 
+        }
 
 
         /* General button styling (shared) */
@@ -176,9 +207,9 @@
         // --- Shake Detection Variables ---
         let last_acc_x = 0, last_acc_y = 0, last_acc_z = 0;
         let last_update_time = 0;
-        const SHAKE_THRESHOLD = 800; // Lower is more sensitive
+        const SHAKE_THRESHOLD = 800; 
         let lastShakeTime = 0;
-        const SHAKE_DEBOUNCE_TIME = 2500; // Min time between shake-triggered 8-balls
+        const SHAKE_DEBOUNCE_TIME = 2500; 
 
         // --- Helper: Find Sound by Description ---
         function findSoundByDescription(description) {
@@ -289,7 +320,7 @@
         }
         function toggleTheme() { applyTheme(htmlElement.classList.contains('light') ? 'dark' : 'light'); }
         function initializeTheme() { /* ... (initializeTheme unchanged) ... */
-            if (footerCreditElement && (originalFooterText === "Soundboard made by Gemini and CookieNick" || !originalFooterText) ) { // Ensure it's captured once.
+            if (footerCreditElement && (originalFooterText === "Soundboard made by Gemini and CookieNick" || !originalFooterText) ) { 
                  originalFooterText = footerCreditElement.textContent;
             }
             const savedTheme = localStorage.getItem('theme');
@@ -377,15 +408,15 @@
                     eightBallButton.disabled = true;
                     const disabledText = "Geduld...";
                     const originalDescKey = 'original8BallDesc';
-                    eightBallButton.dataset[originalDescKey] = disabledText; // Store non-Spongebob
+                    eightBallButton.dataset[originalDescKey] = disabledText; 
                     eightBallButton.textContent = "🔮 " + (htmlElement.classList.contains('light') ? toSpongeBobCase(disabledText) : disabledText);
                     
                     setTimeout(() => {
                         isEightBallDisabled = false;
                         eightBallButton.disabled = false;
                         const defaultText = "Ja of nee?";
-                        delete eightBallButton.dataset[originalDescKey]; // Remove disabled text original
-                        eightBallButton.dataset[originalDescKey] = defaultText; // Store new default
+                        delete eightBallButton.dataset[originalDescKey]; 
+                        eightBallButton.dataset[originalDescKey] = defaultText; 
                         eightBallButton.textContent = "🔮 " + (htmlElement.classList.contains('light') ? toSpongeBobCase(defaultText) : defaultText);
                     }, EIGHT_BALL_DISABLE_DURATION);
                     lastSpamSoundPlayed = ""; 
@@ -423,15 +454,14 @@
         }
         
         // --- Shake Detection Logic ---
-        function handleMotionEvent(event) {
+        function handleMotionEvent(event) { /* ... (shake detection logic unchanged) ... */
             let { x, y, z } = event.accelerationIncludingGravity;
             let currentTime = new Date().getTime();
 
-            if ((currentTime - last_update_time) > 100) { // Check every 100ms
+            if ((currentTime - last_update_time) > 100) { 
                 let diff_time = currentTime - last_update_time;
                 last_update_time = currentTime;
 
-                // Make sure values are not null before calculation
                 if (x === null || y === null || z === null || last_acc_x === null || last_acc_y === null || last_acc_z === null ) {
                     last_acc_x = x; last_acc_y = y; last_acc_z = z;
                     return;
@@ -451,8 +481,7 @@
                 last_acc_x = x; last_acc_y = y; last_acc_z = z;
             }
         }
-
-        function requestDeviceMotionPermission() {
+        function requestDeviceMotionPermission() { /* ... (shake permission logic unchanged) ... */
             if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
                 DeviceMotionEvent.requestPermission()
                     .then(permissionState => {
@@ -469,20 +498,17 @@
                         console.error('Error requesting device motion permission:', error);
                         showMessage('Could not enable shake.', 3000);
                     });
-            } else if ('DeviceMotionEvent' in window) { // For non-iOS 13+ browsers or Android
+            } else if ('DeviceMotionEvent' in window) { 
                 window.addEventListener('devicemotion', handleMotionEvent);
                 console.log('Device motion listener added (e.g., Android).');
                 showMessage('Shake detection active (if supported).', 2000);
                 if(enableShakeButton) enableShakeButton.textContent = "Shake Active ✅";
             } else {
                 showMessage('Shake detection not supported.', 3000);
-                if(enableShakeButton) enableShakeButton.disabled = true; enableShakeButton.textContent = "Shake N/A";
+                if(enableShakeButton) {enableShakeButton.disabled = true; enableShakeButton.textContent = "Shake N/A";}
             }
         }
-
-        if (enableShakeButton) {
-            enableShakeButton.addEventListener('click', requestDeviceMotionPermission);
-        }
+        if (enableShakeButton) { enableShakeButton.addEventListener('click', requestDeviceMotionPermission); }
 
 
         // --- Create Sound Buttons (Main Grid) ---
@@ -525,3 +551,4 @@
     </script>
 </body>
 </html>
+
